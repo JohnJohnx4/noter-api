@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
-const {userToken} = require('../controllers/auth');
+const { userToken } = require('../controllers/auth');
 const bcrypt = require('bcrypt');
 const secret = process.env.SECRET_KEY;
 const salt = parseInt(process.env.SALT_ROUNDS);
-
 
 const login = (req, res) => {
   const { email, password } = req.body;
@@ -26,7 +25,7 @@ const login = (req, res) => {
       user.checkPassword(password, hashMatch => {
         if (hashMatch) {
           const token = userToken({ user: user._id });
-          return res.status(200).json({ success: { user: user._id, token } });
+          return res.status(200).json({ user: user._id, token });
         }
         return res.status(422).json({
           error: 'The password provided is incorrect.'
@@ -55,7 +54,7 @@ const addUser = (req, res) => {
       const newUser = new User({ email, password, name });
       newUser.save().then(user => {
         const token = userToken({ user: user._id });
-        return res.status(200).json({ success: { user: user._id, token } });
+        return res.status(200).json({ user: user._id, token });
       });
     })
     .catch(err => {
@@ -80,11 +79,9 @@ const getSingleUser = (req, res) => {
       return user === null
         ? res.status(404).json({ error: 'User does not exist.' })
         : res.status(200).json({
-            success: {
-              _id: user._id,
-              email: user.email,
-              name: user.name ? user.name : ''
-            }
+            _id: user._id,
+            email: user.email,
+            name: user.name ? user.name : ''
           });
     })
     .catch(err => {
@@ -103,7 +100,7 @@ const updateSingleUser = (req, res) => {
       }
       bcrypt.hash(password, salt).then(hash => {
         const newPass = hash;
-        User.findOneAndUpdate
+        User.findOneAndUpdate;
         User.findByIdAndUpdate(id, { email, newPass, name }, { new: true })
           .then(updatedUser => {
             if (!updatedUser) {
@@ -111,7 +108,7 @@ const updateSingleUser = (req, res) => {
                 .status(404)
                 .json({ failure: 'User ID does not exist.' });
             }
-            return res.status(200).json({ user: updatedUser });
+            return res.status(200).json({ updatedUser });
           })
           .catch(error => res.status(500).json({ error }));
       });

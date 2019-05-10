@@ -8,12 +8,8 @@ const createNote = (req, res) => {
   const note = new Note(req.body);
   note
     .save()
-    .then(note => {
-      return res.status(200).json({ success: note._id });
-    })
-    .catch(err => {
-      return res.status(500).send({ error: err.message });
-    });
+    .then(note => res.status(200).json({ success: note._id }))
+    .catch(err => res.status(500).send({ error: err.message }));
 };
 
 const getAllNotes = (req, res) => {
@@ -23,12 +19,8 @@ const getAllNotes = (req, res) => {
       path: 'last_edit.user',
       select: 'email name'
     })
-    .then(notes => {
-      return res.status(200).json({ success: notes });
-    })
-    .catch(err => {
-      return res.status(500).send({ error: err });
-    });
+    .then(notes => res.status(200).json({ success: notes }))
+    .catch(err => res.status(500).send({ error: err }));
 };
 
 const getNoteByID = (req, res) => {
@@ -39,12 +31,8 @@ const getNoteByID = (req, res) => {
       path: 'last_edit.user',
       select: 'email name'
     })
-    .then(note => {
-      return res.status(200).json({ success: note });
-    })
-    .catch(err => {
-      return res.status(500).send({ error: err });
-    });
+    .then(note => res.status(200).json({ success: note }))
+    .catch(err => res.status(500).send({ error: err }));
 };
 
 const updateNote = (req, res) => {
@@ -59,27 +47,23 @@ const updateNote = (req, res) => {
     { new: true }
   )
     .populate({ path: 'user', select: 'email' })
-    .then(updatedNote => {
-      return updatedNote === null
+    .then(updatedNote =>
+      updatedNote === null
         ? res.status(404).json({ errorMessage: 'Note not found' })
-        : res.status(200).json({ success: updatedNote });
-    })
-    .catch(err => {
-      return res.status(500).send({ error: err });
-    });
+        : res.status(200).json({ success: updatedNote })
+    )
+    .catch(err => res.status(500).send({ error: err }));
 };
 
 const deleteNote = (req, res) => {
   const id = req.params.id;
   Note.findByIdAndRemove(id)
-    .then(deletedNote => {
-      return deletedNote === null
+    .then(deletedNote =>
+      deletedNote === null
         ? res.status(404).json({ errorMessage: 'Note not found' })
-        : res.status(200).json({ success: 'Note deleted succesfully.' });
-    })
-    .catch(err => {
-      return res.status(500).send({ error: err });
-    });
+        : res.status(200).json({ success: 'Note deleted succesfully.' })
+    )
+    .catch(err => res.status(500).send({ error: err }));
 };
 
 module.exports = {
