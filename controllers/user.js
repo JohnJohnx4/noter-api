@@ -25,7 +25,7 @@ const login = (req, res) => {
       user.checkPassword(password, hashMatch => {
         if (hashMatch) {
           const token = jwt.sign({ user: user._id }, secret);
-          return res.status(200).json({ success: user._id, token });
+          return res.status(200).json({ success: { user: user._id, token } });
         }
         return res.status(422).json({
           error: 'The password provided is incorrect.'
@@ -55,7 +55,7 @@ const addUser = (req, res) => {
       const newUser = new User({ email, password, name });
       newUser.save().then(user => {
         const token = jwt.sign({ user: user._id }, secret);
-        return res.status(201).json({ success: user._id, token });
+        return res.status(200).json({ success: { user: user._id, token } });
       });
     })
     .catch(err => {
@@ -79,7 +79,13 @@ const getSingleUser = (req, res) => {
     .then(user => {
       return user === null
         ? res.status(404).json({ error: 'User does not exist.' })
-        : res.status(200).json(user);
+        : res.status(200).json({
+            success: {
+              _id: user._id,
+              email: user.email,
+              name: user.name ? user.name : ''
+            }
+          });
     })
     .catch(err => {
       return res.status(500).json({ error: err.message });
