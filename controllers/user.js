@@ -75,18 +75,18 @@ const getUsers = (req, res) => {
     });
 };
 
-const getUserByID = (req, res) => {
+const getSingleUser = (req, res) => {
   const userID = req.params.id;
   User.findById(userID)
     .then(user => {
-      res.status(200).json(user);
+      return res.status(200).json(user);
     })
     .catch(err => {
-      res.status(500).send(err);
+      return res.status(500).json({ error: err.message });
     });
 };
 
-const updateUser = (req, res) => {
+const updateSingleUser = (req, res) => {
   const { id } = req.params;
   const { email, password } = req.body;
   if (!id) return res.status(422).json({ error: 'User ID required.' });
@@ -134,8 +134,8 @@ const updateUser = (req, res) => {
 
 module.exports = {
   GET_ALL: getUsers,
-  GET: getUserByID,
+  GET: getSingleUser,
   POST: addUser,
-  UPDATE: updateUser,
+  PUT: updateSingleUser,
   LOGIN: login
 };
