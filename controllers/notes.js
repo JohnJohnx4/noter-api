@@ -12,7 +12,7 @@ const createNote = (req, res) => {
       return res.status(200).json({ success: note._id });
     })
     .catch(err => {
-      return res.status(500).send({ error: err });
+      return res.status(500).send({ error: err.message });
     });
 };
 
