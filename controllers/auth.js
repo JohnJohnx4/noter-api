@@ -7,6 +7,7 @@ const userToken = user => jwt.sign(user, SECRET, { expiresIn: '12h' });
 
 
 const verifyUserExists = (req, res, next) => {
+  if (!req.body.user) return res.status(422).json({ error: 'Missing User field' });
   User.findById(req.body.user)
   .then(user => {
     if (!user) {

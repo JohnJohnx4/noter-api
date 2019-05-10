@@ -108,7 +108,7 @@ const updateSingleUser = (req, res) => {
                 .status(404)
                 .json({ failure: 'User ID does not exist.' });
             }
-            return res.status(200).json({ updatedUser });
+            return res.status(200).json({ success: 'User successfully updated.' });
           })
           .catch(error => res.status(500).json({ error }));
       });
@@ -123,7 +123,7 @@ const deleteSingleUser = (req, res) => {
   User.findByIdAndRemove(id)
     .then(user => {
       if (user === null) {
-        return res.status(404).json({ errorMessage: 'User not found' });
+        return res.status(404).json({ error: 'User not found' });
       }
       return res.status(200).json({ success: 'User deleted successfully' });
     })

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Note = require('../models/Note');
 
 const createNote = (req, res) => {
-  if (!req.body.title || !req.body.content || !req.body.user) {
+  if (!req.body.title || !req.body.content) {
     return res.status(422).json({ error: 'Missing a field' });
   }
   const note = new Note(req.body);
@@ -19,8 +19,8 @@ const getAllNotes = (req, res) => {
       path: 'last_edit.user',
       select: 'email name'
     })
-    .then(notes => res.status(200).json({ success: notes }))
-    .catch(err => res.status(500).send({ error: err }));
+    .then(notes => res.status(200).json(notes))
+    .catch(err => res.status(500).send({ error: err.message }));
 };
 
 const getNoteByID = (req, res) => {
@@ -31,15 +31,15 @@ const getNoteByID = (req, res) => {
       path: 'last_edit.user',
       select: 'email name'
     })
-    .then(note => res.status(200).json({ success: note }))
-    .catch(err => res.status(500).send({ error: err }));
+    .then(note => res.status(200).json(note))
+    .catch(err => res.status(500).send({ error: err.message }));
 };
 
 const updateNote = (req, res) => {
   const id = req.params.id;
   const { title, content, user } = req.body;
   if (!title || !content || !id) {
-    return res.status(400).json({ errorMessage: 'Please fill in all fields.' });
+    return res.status(400).json({ error: 'Please fill in all fields.' });
   }
   Note.findByIdAndUpdate(
     id,
@@ -49,10 +49,10 @@ const updateNote = (req, res) => {
     .populate({ path: 'user', select: 'email' })
     .then(updatedNote =>
       updatedNote === null
-        ? res.status(404).json({ errorMessage: 'Note not found' })
-        : res.status(200).json({ success: updatedNote })
+        ? res.status(404).json({ error: 'Note not found' })
+        : res.status(200).json({ success: 'Updated Note successfully.' })
     )
-    .catch(err => res.status(500).send({ error: err }));
+    .catch(err => res.status(500).send({ error: err.message }));
 };
 
 const deleteNote = (req, res) => {
@@ -60,10 +60,10 @@ const deleteNote = (req, res) => {
   Note.findByIdAndRemove(id)
     .then(deletedNote =>
       deletedNote === null
-        ? res.status(404).json({ errorMessage: 'Note not found' })
+        ? res.status(404).json({ error: 'Note not found' })
         : res.status(200).json({ success: 'Note deleted succesfully.' })
     )
-    .catch(err => res.status(500).send({ error: err }));
+    .catch(err => res.status(500).send({ error: err.message }));
 };
 
 module.exports = {
