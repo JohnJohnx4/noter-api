@@ -5,32 +5,32 @@ const bcrypt = require('bcrypt');
 const secret = process.env.SECRET_KEY;
 const salt = parseInt(process.env.SALT_ROUNDS);
 
-// logs user in and issues a JWT
 const login = (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(422).json({ error: 'Email and password required.' });
+    return res.status(422).json({ error: 'Email and password are both required.' });
   }
+
   User.findOne({ email })
     .then(user => {
-      if (user === null) {
+      if (!user) {
         return res
           .status(422)
-          .json({ error: 'User does not exist in database.' });
+          .json({ error: 'The provided user does not exist. Ensure your email is correct.' });
       }
+
       user.checkPassword(password, hashMatch => {
         if (hashMatch) {
-          const payload = { uID: user._id };
-          const token = jwt.sign(payload, secret);
+          const token = jwt.sign( { user: user._id }, secret);
           return res.status(200).json({ success: user._id, token });
         }
         return res.status(422).json({
-          error: 'This password is incorrect.'
+          error: 'The password provided is incorrect.'
         });
       });
     })
     .catch(err => {
-      return res.send(err);
+      return res.status(422).json({ error: err.message});
     });
 };
 
@@ -85,26 +85,6 @@ const getUserByID = (req, res) => {
     });
 };
 
-const queryEmail = (req, res) => {
-  if (!req.params.email) {
-    return res.status(422).json({ error: 'Email required' });
-  } else if (!/^.+@.+\..+$/.test(req.params.email)) {
-    return res.status(422).json({ error: 'Valid email address required' });
-  }
-  const { email } = req.params;
-  User.find({ email })
-    .then(existingUser => {
-      if (existingUser.length > 0) {
-        return res.status(200).json({ failure: 'Email already taken' });
-      } else {
-        return res.status(200).json({ success: 'Email not in use' });
-      }
-    })
-    .catch(err => {
-      res.status(500).send(err);
-    });
-};
-
 const updateUser = (req, res) => {
   const { id } = req.params;
   const { email, password } = req.body;
@@ -149,11 +129,12 @@ const updateUser = (req, res) => {
     });
 };
 
+//TODO - Add delete user route
+
 module.exports = {
   GET_ALL: getUsers,
   GET: getUserByID,
   POST: addUser,
-  FIND: queryEmail,
   UPDATE: updateUser,
   LOGIN: login
 };
