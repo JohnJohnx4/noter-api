@@ -54,7 +54,7 @@ const NoteSchema = mongoose.Schema({
   last_edit: {
     user: {
       type: Schema.Types.ObjectId,
-      ref: User
+      ref: 'User'
     },
     date: {
       type: Date,

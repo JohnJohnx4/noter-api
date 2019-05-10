@@ -16,12 +16,10 @@ const login = (req, res) => {
   User.findOne({ email })
     .then(user => {
       if (!user) {
-        return res
-          .status(422)
-          .json({
-            error:
-              'The provided user does not exist. Ensure your email is correct.'
-          });
+        return res.status(422).json({
+          error:
+            'The provided user does not exist. Ensure your email is correct.'
+        });
       }
 
       user.checkPassword(password, hashMatch => {
@@ -40,12 +38,12 @@ const login = (req, res) => {
 };
 
 const addUser = (req, res) => {
+  console.log('body', req.body);
   if (!req.body.email || !req.body.password) {
     return res
       .status(422)
       .json({ error: 'Email and Password are both required.' });
   }
-
   const { email, password, name } = req.body;
   User.find({ email })
     .then(existingUser => {
@@ -54,11 +52,11 @@ const addUser = (req, res) => {
           .status(409)
           .json({ error: 'User with this email already exists' });
       }
-        const newUser = new User({ email, password });
-        newUser.save().then(user => {
-          const token = jwt.sign({ user: user._id }, secret);
-          return res.status(201).json({ success: user._id, token });
-        });
+      const newUser = new User({ email, password, name });
+      newUser.save().then(user => {
+        const token = jwt.sign({ user: user._id }, secret);
+        return res.status(201).json({ success: user._id, token });
+      });
     })
     .catch(err => {
       return res.status(500).json({ error: err.message });
@@ -79,7 +77,9 @@ const getSingleUser = (req, res) => {
   const userID = req.params.id;
   User.findById(userID)
     .then(user => {
-      return res.status(200).json(user);
+      return user === null
+        ? res.status(404).json({ error: 'User does not exist.' })
+        : res.status(200).json(user);
     })
     .catch(err => {
       return res.status(500).json({ error: err.message });
@@ -88,54 +88,52 @@ const getSingleUser = (req, res) => {
 
 const updateSingleUser = (req, res) => {
   const { id } = req.params;
-  const { email, password } = req.body;
   if (!id) return res.status(422).json({ error: 'User ID required.' });
-  if (!req.body.email) {
-    return res.status(422).json({ error: 'Email required' });
-  } else if (!/^.+@.+\..+$/.test(req.body.email)) {
-    return res.status(422).json({ error: 'Valid email address required' });
-  } else if (!req.body.password) {
-    return res.status(422).json({ error: 'Password required' });
-  } else if (
-    /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(req.body.password) === false
-  ) {
-    return res.status(422).json({
-      error:
-        'Password must be minimum eight characters, at least one letter, and one number'
-    });
-  }
+  const { email, password, name } = req.body;
   User.findById(id)
     .then(user => {
-      if (user) {
-        bcrypt.hash(password, salt, (err, hash) => {
-          if (err) return res.json({ error: err, type: 'bcrypt' });
-          const newPass = hash;
-          User.findByIdAndUpdate(id, { email, newPass }, { new: true })
-            .select('-password')
-            .then(updatedUser => {
-              if (!updatedUser)
-                return res
-                  .status(204)
-                  .json({ failure: 'User ID does not exist.' });
-              res.status(200).json({ user: updatedUser });
-            })
-            .catch(error => res.status(500).json({ mongo_error: error }));
-        });
-      } else {
-        return res.status(404).json({ error: 'User not found' });
+      if (!user) {
+        return res.status(404).send({ error: 'User does not exist.' });
       }
+      bcrypt.hash(password, salt).then(hash => {
+        const newPass = hash;
+
+        User.findByIdAndUpdate(id, { email, newPass, name }, { new: true })
+          .then(updatedUser => {
+            if (!updatedUser) {
+              return res
+                .status(404)
+                .json({ failure: 'User ID does not exist.' });
+            }
+            return res.status(200).json({ user: updatedUser });
+          })
+          .catch(error => res.status(500).json({ mongo_error: error }));
+      });
     })
     .catch(err => {
-      res.status(500).json({ mongo_error: err });
+      res.status(500).json({ error: err.message });
     });
 };
 
-//TODO - Add delete user route
+const deleteSingleUser = (req, res) => {
+  const id = req.params.id;
+  User.findByIdAndRemove(id)
+    .then(user => {
+      if (user === null) {
+        return res.status(404).json({ errorMessage: 'User not found' });
+      }
+      res.status(200).json({ deleted: user });
+    })
+    .catch(err => {
+      res.send(err);
+    });
+};
 
 module.exports = {
   GET_ALL: getUsers,
   GET: getSingleUser,
   POST: addUser,
   PUT: updateSingleUser,
+  DELETE: deleteSingleUser,
   LOGIN: login
 };
