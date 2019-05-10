@@ -8,7 +8,9 @@ const salt = parseInt(process.env.SALT_ROUNDS);
 const login = (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(422).json({ error: 'Email and password are both required.' });
+    return res
+      .status(422)
+      .json({ error: 'Email and password are both required.' });
   }
 
   User.findOne({ email })
@@ -16,12 +18,15 @@ const login = (req, res) => {
       if (!user) {
         return res
           .status(422)
-          .json({ error: 'The provided user does not exist. Ensure your email is correct.' });
+          .json({
+            error:
+              'The provided user does not exist. Ensure your email is correct.'
+          });
       }
 
       user.checkPassword(password, hashMatch => {
         if (hashMatch) {
-          const token = jwt.sign( { user: user._id }, secret);
+          const token = jwt.sign({ user: user._id }, secret);
           return res.status(200).json({ success: user._id, token });
         }
         return res.status(422).json({
@@ -30,37 +35,33 @@ const login = (req, res) => {
       });
     })
     .catch(err => {
-      return res.status(422).json({ error: err.message});
+      return res.status(500).json({ error: err.message });
     });
 };
 
 const addUser = (req, res) => {
-  if (!req.body.email) {
-    return res.status(422).json({ error: 'Email required' });
-  } else if (!/^.+@.+\..+$/.test(req.body.email)) {
-    return res.status(422).json({ error: 'Valid email address required' });
-  } else if (!req.body.password) {
-    return res.status(422).json({ error: 'Password required' });
+  if (!req.body.email || !req.body.password) {
+    return res
+      .status(422)
+      .json({ error: 'Email and Password are both required.' });
   }
 
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
   User.find({ email })
     .then(existingUser => {
-      if (existingUser.length > 0)
+      if (existingUser.length > 0) {
         return res
           .status(409)
-          .json({ error: 'User with this info already exists' });
-      else {
+          .json({ error: 'User with this email already exists' });
+      }
         const newUser = new User({ email, password });
         newUser.save().then(user => {
-          const payload = { uID: user._id };
-          const token = jwt.sign(payload, secret);
+          const token = jwt.sign({ user: user._id }, secret);
           return res.status(201).json({ success: user._id, token });
         });
-      }
     })
     .catch(err => {
-      return res.status(500).send(err);
+      return res.status(500).json({ error: err.message });
     });
 };
 
