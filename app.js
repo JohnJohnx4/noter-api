@@ -10,7 +10,11 @@ const rl = require('readline');
 
 const db = process.env.MONGODB_URI || 'mongodb://localhost:27017/noter';
 mongoose
-  .connect(db, { useNewUrlParser: true, useCreateIndex: true })
+  .connect(db, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+  })
   .then(() => {
     return console.log('Connected to mongo database');
   })

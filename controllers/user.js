@@ -38,7 +38,6 @@ const login = (req, res) => {
 };
 
 const addUser = (req, res) => {
-  console.log('body', req.body);
   if (!req.body.email || !req.body.password) {
     return res
       .status(422)
@@ -103,7 +102,7 @@ const updateSingleUser = (req, res) => {
       }
       bcrypt.hash(password, salt).then(hash => {
         const newPass = hash;
-
+        User.findOneAndUpdate
         User.findByIdAndUpdate(id, { email, newPass, name }, { new: true })
           .then(updatedUser => {
             if (!updatedUser) {
@@ -113,7 +112,7 @@ const updateSingleUser = (req, res) => {
             }
             return res.status(200).json({ user: updatedUser });
           })
-          .catch(error => res.status(500).json({ mongo_error: error }));
+          .catch(error => res.status(500).json({ error }));
       });
     })
     .catch(err => {

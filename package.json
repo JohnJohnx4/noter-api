@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "Api to store notes",
   "main": "app.js",
+  "directories": {
+		"test": "tests"
+	},
   "scripts": {
     "dev": "nodemon ./app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha ./tests"
   },
   "repository": {
     "type": "git",
