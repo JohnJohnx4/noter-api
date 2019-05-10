@@ -1,8 +1,20 @@
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.SECRET_KEY;
 const apiKey = process.env.PUBLIC_KEY;
+const User = require('../models/User');
 
 const userToken = user => jwt.sign(user, SECRET, { expiresIn: '12h' });
+
+
+const verifyUserExists = (req, res, next) => {
+  User.findById(req.body.user)
+  .then(user => {
+    if (!user) {
+      return res.status(404).send({ error: 'User does not exist.' });
+    }
+    next();
+  });
+}
 
 const validateToken = (req, res, next) => {
   const token = req.headers.authorization;
@@ -35,5 +47,6 @@ const verifyApiKey = (req, res, next) => {
 module.exports = {
   validateToken,
   userToken,
-  verifyApiKey
+  verifyApiKey,
+  verifyUserExists
 };

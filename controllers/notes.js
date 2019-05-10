@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Note = require('../models/Note');
-const User = require('../models/User');
 
 const createNote = (req, res) => {
   if (!req.body.title || !req.body.content || !req.body.user) {
@@ -10,7 +9,7 @@ const createNote = (req, res) => {
   note
     .save()
     .then(note => {
-      return res.status(200).json({ success: note });
+      return res.status(200).json({ success: note._id });
     })
     .catch(err => {
       return res.status(500).send({ error: err });
