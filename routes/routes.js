@@ -1,5 +1,6 @@
 const users = require('../controllers/user');
 const notes = require('../controllers/notes');
+const {validateToken, verifyApiKey} = require('../controllers/auth');
 
 // TODO - Require all routes except login to have jwt
 
@@ -8,21 +9,21 @@ module.exports = app => {
 
   app
     .route('/api/users')
-    .get(users.GET_ALL)
-    .post(users.POST);
+    .get(validateToken, users.GET_ALL)
+    .post(verifyApiKey, users.POST);
   app
     .route('/api/users/:id')
-    .get(users.GET)
-    .put(users.PUT)
-    .delete(users.DELETE);
+    .get(validateToken, users.GET)
+    .put(validateToken, users.PUT)
+    .delete(validateToken, users.DELETE);
 
   app
     .route('/api/notes')
-    .get(notes.GET_ALL)
-    .post(notes.POST);
+    .get(validateToken, notes.GET_ALL)
+    .post(validateToken, notes.POST);
   app
     .route('/api/notes/:id')
-    .get(notes.GET)
-    .delete(notes.DELETE)
-    .put(notes.PUT);
+    .get(validateToken, notes.GET)
+    .delete(validateToken, notes.DELETE)
+    .put(validateToken, notes.PUT);
 };

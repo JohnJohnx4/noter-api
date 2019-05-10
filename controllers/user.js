@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const {userToken} = require('../controllers/auth');
 const bcrypt = require('bcrypt');
 const secret = process.env.SECRET_KEY;
 const salt = parseInt(process.env.SALT_ROUNDS);
+
 
 const login = (req, res) => {
   const { email, password } = req.body;
@@ -24,7 +25,7 @@ const login = (req, res) => {
 
       user.checkPassword(password, hashMatch => {
         if (hashMatch) {
-          const token = jwt.sign({ user: user._id }, secret);
+          const token = userToken({ user: user._id });
           return res.status(200).json({ success: { user: user._id, token } });
         }
         return res.status(422).json({
@@ -53,7 +54,7 @@ const addUser = (req, res) => {
       }
       const newUser = new User({ email, password, name });
       newUser.save().then(user => {
-        const token = jwt.sign({ user: user._id }, secret);
+        const token = userToken({ user: user._id });
         return res.status(200).json({ success: { user: user._id, token } });
       });
     })
@@ -116,7 +117,7 @@ const updateSingleUser = (req, res) => {
       });
     })
     .catch(err => {
-      res.status(500).json({ error: err.message });
+      return res.status(500).json({ error: err.message });
     });
 };
 
@@ -127,10 +128,10 @@ const deleteSingleUser = (req, res) => {
       if (user === null) {
         return res.status(404).json({ errorMessage: 'User not found' });
       }
-      res.status(200).json({ deleted: user });
+      return res.status(200).json({ success: 'User deleted successfully' });
     })
     .catch(err => {
-      res.send(err);
+      return res.send(err);
     });
 };
 

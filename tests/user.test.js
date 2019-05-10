@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../app');
+const apiKey = process.env.PUBLIC_KEY;
 
 chai.use(chaiHttp);
 chai.should();
@@ -31,7 +32,6 @@ describe('Server', () => {
     let user_id = '';
     let userToken = '';
     let note_id = '';
-    let noteToken = '';
 
     describe('User POST /', () => {
       it('should add a new User', done => {
@@ -41,7 +41,7 @@ describe('Server', () => {
         chai
           .request(app)
           .post('/api/users')
-          .send({ email, password, name })
+          .send({ email, password, name, key: apiKey })
           .then(res => {
             user_id = res.body.success.user;
             userToken = res.body.success.token;
@@ -64,6 +64,7 @@ describe('Server', () => {
         chai
           .request(app)
           .post('/api/notes')
+          .set('Authorization', userToken)
           .send(testNote)
           .then(res => {
             note_id = res.body.success._id;
@@ -82,6 +83,7 @@ describe('Server', () => {
         chai
           .request(app)
           .get('/api/users')
+          .set('Authorization', userToken)
           .then(res => {
             res.should.have.status(200);
             done();
@@ -97,6 +99,7 @@ describe('Server', () => {
         chai
           .request(app)
           .get('/api/notes')
+          .set('Authorization', userToken)
           .then(res => {
             res.should.have.status(200);
             done();
@@ -113,6 +116,7 @@ describe('Server', () => {
         chai
           .request(app)
           .get(`/api/users/${user_id}`)
+          .set('Authorization', userToken)
           .then(res => {
             res.should.have.status(200);
             done();
@@ -128,6 +132,7 @@ describe('Server', () => {
         chai
           .request(app)
           .get(`/api/notes/${note_id}`)
+          .set('Authorization', userToken)
           .then(res => {
             res.should.have.status(200);
             done();
@@ -144,7 +149,7 @@ describe('Server', () => {
         chai
           .request(app)
           .put(`/api/users/${user_id}`)
-          // .set('Authorization', userToken)
+          .set('Authorization', userToken)
           .send({
             name: 'Updated',
             email: 'updated@user.com',
@@ -165,7 +170,7 @@ describe('Server', () => {
         chai
           .request(app)
           .put(`/api/notes/${note_id}`)
-          // .set('Authorization', noteToken)
+          .set('Authorization', userToken)
           .send({
             title: 'Updated Title',
             content: 'Updated Content',
@@ -186,7 +191,7 @@ describe('Server', () => {
         chai
           .request(app)
           .delete(`/api/users/${user_id}`)
-          // .set('Authorization', userToken)
+          .set('Authorization', userToken)
           .then(res => {
             res.should.have.status(200);
             done();
@@ -202,7 +207,7 @@ describe('Server', () => {
         chai
           .request(app)
           .delete(`/api/notes/${note_id}`)
-          // .set('Authorization', noteToken)
+          .set('Authorization', userToken)
           .then(res => {
             res.should.have.status(200);
             done();
