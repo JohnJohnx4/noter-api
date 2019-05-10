@@ -1,7 +1,28 @@
 # noter-api
 ### API for creating, reading, updating, and deleting notes. All routes are protected, requiring a JWT on the Authorization header, except for the login route
 
+## Running Locally
+---
+- Fork and clone repo to your local machine
+- run `npm install`
+- run `npm run dev` to have nodemon run the server
+- run `npm start` to start the server
+
+Check out the docs for information on the server and its endpoints:
+
+
+### Login endpoints
+---
 * [Login](docs/login.md) : `POST /api/login/`
+
+Requires an API key to login. You can store your own API key in a `.env` file under `PUBLIC_KEY`.
+Other `.env` variables you will need are 
+```
+SALT_ROUNDS: Number for hashing passwords, 
+PORT: Port to host server, defaults to 5000, 
+SECRET_KEY: String holding key for securing JWT, 
+PUBLIC_KEY: Key to secure login route
+```
 
 ### User endpoints
 ---
