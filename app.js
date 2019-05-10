@@ -30,3 +30,5 @@ app.options('*', cors({ origin: '*' }));
 app.get('/', (req, res) => {
   res.status(200).json('Hey, this is my server!');
 });
+
+module.exports = app;
