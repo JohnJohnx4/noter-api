@@ -27,7 +27,14 @@ const NoteSchema = mongoose.Schema({
   public: {
     type: Boolean
   },
-  comments: [],
+  comments: [
+    {
+      user: { type: Schema.Types.ObjectId, ref: 'User' },
+      comment: { type: String },
+      posted_on: { type: Date },
+      likes: { type: Number, default: 0 }
+    }
+  ],
   collaborators: [
     {
       type: Schema.Types.ObjectId,
@@ -49,7 +56,8 @@ const NoteSchema = mongoose.Schema({
   },
   created: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    required: true
   },
   last_edit: {
     user: {

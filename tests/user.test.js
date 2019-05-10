@@ -6,18 +6,9 @@ const app = require('../app');
 chai.use(chaiHttp);
 chai.should();
 
-const User = require('../models/User');
-
-/* TODOs
- ** Set up tests for this user
- ** Fix test user for post
- ** set up correct route testing for users
- **
- */
-
 describe('Server', () => {
   before(done => {
-    mongoose.connect('mongodb://localhost:27017/hairspray', {
+    mongoose.connect('mongodb://localhost:27017/noter', {
       useNewUrlParser: true
     });
     const db = mongoose.connection;
@@ -36,11 +27,13 @@ describe('Server', () => {
     });
   });
 
-  describe('Users', () => {
+  describe('Routes', () => {
     let user_id = '';
     let userToken = '';
+    let note_id = '';
+    let noteToken = '';
 
-    describe('POST /', () => {
+    describe('User POST /', () => {
       it('should add a new User', done => {
         const email = 'test@test.com';
         const password = 'testing123';
@@ -51,6 +44,29 @@ describe('Server', () => {
           .send({ email, password, name })
           .then(res => {
             user_id = res.body.success.user;
+            userToken = res.body.success.token;
+            res.should.have.status(200);
+            done();
+          })
+          .catch(err => {
+            console.log('POST', err);
+            done();
+          });
+      });
+    });
+    describe('Note POST /', () => {
+      it('should add a new Note', done => {
+        const testNote = {
+          user: user_id,
+          title: 'Test Title',
+          content: 'Test Content'
+        };
+        chai
+          .request(app)
+          .post('/api/notes')
+          .send(testNote)
+          .then(res => {
+            note_id = res.body.success._id;
             res.should.have.status(200);
             done();
           })
@@ -61,7 +77,7 @@ describe('Server', () => {
       });
     });
 
-    describe('GET /', () => {
+    describe('User GET /', () => {
       it('should get all users', done => {
         chai
           .request(app)
@@ -76,8 +92,23 @@ describe('Server', () => {
           });
       });
     });
+    describe('Note GET /', () => {
+      it('should get all notes', done => {
+        chai
+          .request(app)
+          .get('/api/notes')
+          .then(res => {
+            res.should.have.status(200);
+            done();
+          })
+          .catch(err => {
+            console.log('GET', err);
+            done();
+          });
+      });
+    });
 
-    describe('/GET/:id', () => {
+    describe('User /GET/:id', () => {
       it('it should retrieve a user by id', done => {
         chai
           .request(app)
@@ -92,8 +123,23 @@ describe('Server', () => {
           });
       });
     });
+    describe('Note /GET/:id', () => {
+      it('it should retrieve a note by id', done => {
+        chai
+          .request(app)
+          .get(`/api/notes/${note_id}`)
+          .then(res => {
+            res.should.have.status(200);
+            done();
+          })
+          .catch(err => {
+            console.log('GET/:id', err);
+            done();
+          });
+      });
+    });
 
-    describe('/PUT/:id', () => {
+    describe('User /PUT/:id', () => {
       it('it update a user by id', done => {
         chai
           .request(app)
@@ -114,13 +160,49 @@ describe('Server', () => {
           });
       });
     });
+    describe('Note /PUT/:id', () => {
+      it('it update a note by id', done => {
+        chai
+          .request(app)
+          .put(`/api/notes/${note_id}`)
+          // .set('Authorization', noteToken)
+          .send({
+            title: 'Updated Title',
+            content: 'Updated Content',
+          })
+          .then(res => {
+            res.should.have.status(200);
+            done();
+          })
+          .catch(err => {
+            console.log('PUT/:id', err);
+            done();
+          });
+      });
+    });
 
-    describe('/DELETE/:id', () => {
+    describe('User /DELETE/:id', () => {
       it('it should remove a user by id', done => {
         chai
           .request(app)
           .delete(`/api/users/${user_id}`)
           // .set('Authorization', userToken)
+          .then(res => {
+            res.should.have.status(200);
+            done();
+          })
+          .catch(err => {
+            console.log('DELETE/:id', err);
+            done();
+          });
+      });
+    });
+    describe('Note /DELETE/:id', () => {
+      it('it should remove a note by id', done => {
+        chai
+          .request(app)
+          .delete(`/api/notes/${note_id}`)
+          // .set('Authorization', noteToken)
           .then(res => {
             res.should.have.status(200);
             done();
