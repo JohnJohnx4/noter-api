@@ -68,10 +68,10 @@ const addUser = (req, res) => {
 const getUsers = (req, res) => {
   User.find({})
     .then(users => {
-      res.status(200).json(users);
+      return res.status(200).json(users);
     })
     .catch(err => {
-      res.status(500).send(err);
+      return res.status(500).json({ error: err.message });
     });
 };
 
