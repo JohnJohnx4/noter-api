@@ -1,6 +1,6 @@
 
 ## Login
-======
+---
 
 Returns the user's ID and a token
 
@@ -25,7 +25,7 @@ Data example
 }
 ```
 ### Success Response
-======
+---
 
 Response body
 ```
@@ -37,7 +37,7 @@ Response body
 }
 ```
 ### Error Response
-======
+---
 
 If `email` or `password` are not provided
 Response body
