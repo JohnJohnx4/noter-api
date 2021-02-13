@@ -35,19 +35,19 @@ const validateToken = (req, res, next) => {
   });
 };
 
-const verifyApiKey = (req, res, next) => {
-  const givenKey = req.body.key;
-  if (givenKey !== apiKey){
-    return res
-      .status(422)
-      .json({ error: 'API key invalid, please check env variables.' });
-  }
-  next();
-}
+// const verifyApiKey = (req, res, next) => {
+//   const givenKey = req.body.key;
+//   if (givenKey !== apiKey){
+//     return res
+//       .status(422)
+//       .json({ error: 'API key invalid, please check env variables.' });
+//   }
+//   next();
+// }
 
 module.exports = {
   validateToken,
   userToken,
-  verifyApiKey,
+  // verifyApiKey,
   verifyUserExists
 };

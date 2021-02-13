@@ -1,16 +1,20 @@
+const jwt = require('jsonwebtoken');
 const users = require('../controllers/user');
 const notes = require('../controllers/notes');
-const {validateToken, verifyApiKey, verifyUserExists} = require('../controllers/auth');
+// const {validateToken, verifyApiKey, verifyUserExists} = require('../controllers/auth');
+const {validateToken, verifyUserExists} = require('../controllers/auth');
+const SECRET = process.env.SECRET_KEY;
 
 // TODO - Require all routes except login to have jwt
 
 module.exports = app => {
   app.route('/api/login').post(users.LOGIN);
+  app.route('/api/token').get((req, res) => res.json({token: jwt.sign({user: '1234'}, SECRET, { expiresIn: '12h' })}));
 
   app
     .route('/api/users')
     .get(validateToken, users.GET_ALL)
-    .post(verifyApiKey, users.POST);
+    .post(users.POST);
   app
     .route('/api/users/:id')
     .get(validateToken, users.GET)

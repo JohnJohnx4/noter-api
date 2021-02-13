@@ -3,7 +3,7 @@ const Note = require('../models/Note');
 
 const createNote = (req, res) => {
   if (!req.body.title || !req.body.content) {
-    return res.status(422).json({ error: 'Missing a field' });
+    return res.status(422).json({ error: 'Missing a title or content field' });
   }
   const note = new Note(req.body);
   note
