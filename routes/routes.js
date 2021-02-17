@@ -28,7 +28,7 @@ module.exports = app => {
     
   app
   .route('/api/notes/user/:userid')
-  .get(validateToken, verifyUserExists, notes.GET_USER)
+  .get(validateToken, notes.GET_USER)
 
   app
     .route('/api/notes/:id')
