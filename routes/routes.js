@@ -25,6 +25,11 @@ module.exports = app => {
     .route('/api/notes')
     .get(validateToken, notes.GET_ALL)
     .post(validateToken, verifyUserExists, notes.POST);
+    
+  app
+  .route('/api/notes/user/:userid')
+  .get(validateToken, verifyUserExists, notes.GET_USER)
+
   app
     .route('/api/notes/:id')
     .get(validateToken, notes.GET)
